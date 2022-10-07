@@ -1,13 +1,32 @@
-require('dotenv').config();
-const {Client, IntentsBitField} = require("discord.js");
+import app from './firebase/firebase.js';
+import * as dotenv from 'dotenv';
+import { Client, GatewayIntentBits } from 'discord.js';
+import { getPrefix } from './services/prefix.js';
+
+// Run .env configuration
+dotenv.config();
+
+// Create a new client instance
 const client = new Client({
-    intents:[
-        IntentsBitField.Flags.Guilds,
-        IntentsBitField.Flags.GuildMessages
-    ]
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages, 
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.MessageContent
+  ]
 });
 
-client.on("ready", () =>{
-    console.log("The bot is online"); //message when bot is online
+client.on("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`)
 });
-client.login(process.env.CLIENT_TOKEN);
+
+client.on('messageCreate', message => {
+  if (message.author.bot) return;
+
+  const prefix = getPrefix();
+  const command = message.content.split(' ');
+
+  console.log(message.content);
+});
+
+client.login(process.env.DISCORD_TOKEN);
