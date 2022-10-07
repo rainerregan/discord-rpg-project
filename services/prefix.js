@@ -1,7 +1,5 @@
 const DEFAULT_PREFIX = 'rp';
 
-const getPrefix = function(){
+export const getPrefix = function(){
     return DEFAULT_PREFIX;
 }
-
-export {getPrefix}
