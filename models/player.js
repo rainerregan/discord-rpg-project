@@ -2,16 +2,57 @@ import { db } from '../firebase/firebase.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export class Player {
-    constructor(id, money) {
+    id = null;
+    silver = null;
+    xp = null;
+
+    constructor(id, silver, xp) {
         this.id = id;
-        this.money = money;
+        this.silver = silver;
+        this.xp = xp;
+    }
+
+    static Builder = class {
+        #id = null;
+        #silver = null;
+        #xp = null;
+
+        setId(id) {
+            this.#id = id;
+            return this;
+        }
+
+        setSilver(silver) {
+            this.#silver = silver;
+            return this;
+        }
+
+        setXp(xp) {
+            this.#xp = xp;
+            return this;
+        }
+
+        build(){
+            const player = new Player(
+                this.#id,
+                this.#silver,
+                this.#xp
+            );
+
+            return player;
+        }
     }
 
     toObject() {
         return {
             id: this.id,
-            money: this.money
+            silver: this.silver
         }
+    }
+
+    static toClass(object) {
+        const player = new Player(object.id);
+        return player;
     }
 }
 

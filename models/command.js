@@ -1,10 +1,10 @@
-import { getPrefix } from "../services/prefix.js";
+import { getPrefix } from "../configs/prefix.js";
 
 /**
  * Command Class
  * Class for command that user send from the message.
  */
-export default class Command {
+export class Command {
     constructor(command) {
         this.command = command;
         this.commandSplit = command.split(' ');
@@ -52,8 +52,11 @@ export default class Command {
         return this.commandSplit[0];
     }
 
+    /**
+     * Check the prefix if the command's prefix is same as the default prefix
+     * @returns boolean
+     */
     checkPrefix(){
-        const defaultPrefix = getPrefix();
         return this.getCommandPrefix() === getPrefix();
     }
 }

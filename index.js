@@ -1,9 +1,11 @@
 import * as dotenv from 'dotenv';
-import { Client, GatewayIntentBits, User } from 'discord.js';
-import Command from './models/command.js';
+import UserConfig from './configs/userConfig.js';
+import { Client, GatewayIntentBits } from 'discord.js';
+import { Command } from './models/command.js';
 import { getPlayer, Player, registerPlayer } from './models/player.js';
-import userConfig from './configs/userConfig.json' assert { type: 'json' };
-import { getPrefix } from './services/prefix.js';
+import { getPrefix } from './configs/prefix.js';
+import { replyEmbedMessage, sendTextMessage } from './services/messages.js';
+import { buildProfileEmbedMessage } from './services/buildReplies.js';
 
 // Run .env configuration
 dotenv.config();
@@ -18,15 +20,6 @@ const client = new Client({
   ]
 });
 
-const replyMessage = function (message, content) {
-  message.reply({
-    content: content,
-    allowedMentions: {
-      repliedUser: false
-    }
-  });
-}
-
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
 });
@@ -40,13 +33,14 @@ client.on('messageCreate', message => {
   if (!command.checkPrefix()) return; // If the prefix is not matched.
 
   switch (command.getCommandWithLevel(1)) {
-    case "p":
+    case "profile":
       getPlayer(message.author.id)
         .then(snapshot => {
-          if (snapshot.data()) {
-            replyMessage(message, "Profile");
+          let playerData = snapshot.data();
+          if (playerData) {
+            replyEmbedMessage(message, buildProfileEmbedMessage(message.author, playerData));
           } else {
-            replyMessage(message, `You are not registered! type '${getPrefix()} register' to register`);
+            sendTextMessage(message, `You are not registered! type '${getPrefix()} register' to register`);
           }
         })
       break;
@@ -55,13 +49,18 @@ client.on('messageCreate', message => {
       getPlayer(message.author.id)
         .then(snapshot => {
           if (snapshot.data()) {
-            replyMessage(message, "You are already registered!");
+            sendTextMessage(message, "You are already registered!");
           } else {
-            const newPlayer = new Player(message.author.id, userConfig.userStartingMoney);
+            const newPlayer = new Player.Builder()
+              .setId(message.author.id)
+              .setSilver(UserConfig.STARTING_SILVER)
+              .setXp(UserConfig.STARTING_XP)
+              .build();
+
             registerPlayer(newPlayer)
               .then((docRef) => {
-                replyMessage(message, "You are now registered!");
-              })
+                sendTextMessage(message, "You are now registered!");
+              });
           }
         })
       break;
