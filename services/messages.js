@@ -34,7 +34,7 @@ export const replyEmbedMessage = function (message, embed) {
  * @param {object} content 
  */
 export const sendTextMessage = function (message, content) {
-    message.channel.send({
+    return message.channel.send({
         content: content,
     });
 }

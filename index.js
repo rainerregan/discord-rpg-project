@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import UserConfig from './configs/userConfig.js';
 import { Client, GatewayIntentBits } from 'discord.js';
 import { Command } from './models/command.js';
 import { getPlayer, Player, registerPlayer } from './models/player.js';
@@ -7,6 +6,7 @@ import { getPrefix } from './configs/prefix.js';
 import { replyEmbedMessage, sendTextMessage } from './services/messages.js';
 import { buildProfileEmbedMessage } from './services/buildReplies.js';
 import { getReplies } from './configs/replies.js';
+import { adventure } from './actions/adventure.js';
 
 // Run .env configuration
 dotenv.config();
@@ -33,26 +33,32 @@ client.on('messageCreate', message => {
 
   if (!command.checkPrefix()) return; // If the prefix is not matched.
 
-  switch (command.getCommandWithLevel(1)) {
-    case "profile":
-      getPlayer(message.author.id)
-        .then(snapshot => {
-          let playerData = snapshot.data();
-          
-          if (playerData) {
-            replyEmbedMessage(message, buildProfileEmbedMessage(message.author, playerData));
-          } else {
-            sendTextMessage(message, `You are not registered! type '${getPrefix()} register' to register`);
-          }
-        })
-      break;
+  getPlayer(message.author.id)
+    .then(snapshot => {
+      let playerData = snapshot.data();
 
-    case "register":
-      getPlayer(message.author.id)
-        .then(snapshot => {
-          if (snapshot.data()) {
+      if (playerData) {
+        switch (command.getCommandWithLevel(1)) {
+          case "profile":
+            replyEmbedMessage(message, buildProfileEmbedMessage(message.author, playerData));
+            break;
+          case "register":
             sendTextMessage(message, getReplies().register.registerFail.alreadyRegistered);
-          } else {
+            break;
+          case "inv":
+            sendTextMessage(message, "Inventory")
+            break;
+          case "adv":
+            adventure(message, playerData);
+            break;
+        }
+      }
+      else {
+        switch (command.getCommandWithLevel(1)) {
+          case "profile":
+            sendTextMessage(message, `You are not registered! type '${getPrefix()} register' to register`);
+            break;
+          case "register":
             const newPlayer = new Player.Builder()
               .setId(message.author.id)
               .build();
@@ -61,10 +67,10 @@ client.on('messageCreate', message => {
               .then((docRef) => {
                 sendTextMessage(message, getReplies().register.registerSuccess);
               });
-          }
-        })
-      break;
-  }
+            break;
+        }
+      }
+    });
 
 
 });

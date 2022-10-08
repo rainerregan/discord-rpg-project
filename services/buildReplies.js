@@ -17,7 +17,7 @@ export const buildProfileEmbedMessage = function(user, playerData){
                 name: 'PROGRESS', 
                 value: 
                     `
-                    Level: 1
+                    Level: ${playerData.level}
                     XP: ${playerData.xp}/${Player.getMaxXp(playerData)}
                     `
             },
