@@ -46,12 +46,18 @@ export class Player {
     toObject() {
         return {
             id: this.id,
-            silver: this.silver
+            silver: this.silver,
+            xp: this.xp
         }
     }
 
     static toClass(object) {
-        const player = new Player(object.id);
+        const player = new Player.Builder()
+            .setId(object.id)
+            .setSilver(object.silver)
+            .setXp(object.xp)
+            .build();
+
         return player;
     }
 }
