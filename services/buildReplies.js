@@ -14,11 +14,21 @@ export const buildProfileEmbedMessage = function(user, playerData){
         .setThumbnail(user.avatarURL())
         .addFields(
             { 
-                name: 'STATS', 
+                name: 'PROGRESS', 
                 value: 
                     `
                     Level: 1
-                    XP: 0
+                    XP: ${playerData.xp}/${Player.getMaxXp(playerData)}
+                    `
+            },
+            { 
+                name: 'STATS', 
+                value: 
+                    `
+                    HEALTH: ${playerData.health}
+                    ATTACK: ${playerData.attack}
+                    DEFENSE: ${playerData.defense}
+                    AGILITY: ${playerData.agility}
                     `
             },
             { 

@@ -6,6 +6,7 @@ import { getPlayer, Player, registerPlayer } from './models/player.js';
 import { getPrefix } from './configs/prefix.js';
 import { replyEmbedMessage, sendTextMessage } from './services/messages.js';
 import { buildProfileEmbedMessage } from './services/buildReplies.js';
+import { getReplies } from './configs/replies.js';
 
 // Run .env configuration
 dotenv.config();
@@ -37,6 +38,7 @@ client.on('messageCreate', message => {
       getPlayer(message.author.id)
         .then(snapshot => {
           let playerData = snapshot.data();
+          
           if (playerData) {
             replyEmbedMessage(message, buildProfileEmbedMessage(message.author, playerData));
           } else {
@@ -49,17 +51,15 @@ client.on('messageCreate', message => {
       getPlayer(message.author.id)
         .then(snapshot => {
           if (snapshot.data()) {
-            sendTextMessage(message, "You are already registered!");
+            sendTextMessage(message, getReplies().register.registerFail.alreadyRegistered);
           } else {
             const newPlayer = new Player.Builder()
               .setId(message.author.id)
-              .setSilver(UserConfig.STARTING_SILVER)
-              .setXp(UserConfig.STARTING_XP)
               .build();
 
             registerPlayer(newPlayer)
               .then((docRef) => {
-                sendTextMessage(message, "You are now registered!");
+                sendTextMessage(message, getReplies().register.registerSuccess);
               });
           }
         })
